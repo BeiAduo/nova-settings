@@ -35,6 +35,8 @@ class NovaSettingsServiceProvider extends ServiceProvider
                 __DIR__ . '/../config/' => config_path(),
             ], 'config');
         }
+                $this->cacheNovaSettings();
+
     }
 
     public function register()
@@ -68,5 +70,13 @@ class NovaSettingsServiceProvider extends ServiceProvider
         Route::middleware(['nova', Authorize::class, SettingsPathExists::class])
             ->domain(config('nova.domain', null))
             ->group(__DIR__ . '/../routes/api.php');
+    }
+      protected function cacheNovaSettings()
+    {
+        $cacheKey = 'nova_settings';
+
+        Cache::remember($cacheKey, 3600, function () {
+            return nova_get_settings();
+        });
     }
 }
